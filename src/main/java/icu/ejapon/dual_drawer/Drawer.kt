@@ -55,7 +55,7 @@ enum class DrawerValue {
     /**
      * The state of the drawer when it is open.
      */
-    LeftOpen,   //FIX 左の値用に変更
+    LeftOpen,   //FIXED 左の値用に変更
     RightOpen   //ADD 右の値用に追加
 }
 
@@ -84,7 +84,7 @@ class DrawerState(
      * Whether the drawer is open.
      */
     val isOpen: Boolean
-        get() = currentValue == DrawerValue.LeftOpen || currentValue == DrawerValue.RightOpen   //FIX 右の場合もtrueになるように
+        get() = currentValue == DrawerValue.LeftOpen || currentValue == DrawerValue.RightOpen   //FIXED 右の場合もtrueになるように
 
     /**
      * Whether the drawer is closed.
@@ -250,8 +250,8 @@ fun DualDrawer(
             throw IllegalStateException("Drawer shouldn't have infinite width")
         }
 
-        val minValue = -modalDrawerConstraints.maxWidth.toFloat()
-        val maxValue = 0f
+        val maxValue = -modalDrawerConstraints.maxWidth.toFloat()
+        val startingValue = 0f
 
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         Box(
@@ -264,13 +264,13 @@ fun DualDrawer(
                 )
                 .swipeAnchors(
                     drawerState.swipeableState,
-                    possibleValues = setOf(DrawerValue.LeftOpen, DrawerValue.Closed, DrawerValue.RightOpen) //ADD 右Drawerを開いた際の値を追加
+                    possibleValues = setOf(DrawerValue.Closed, DrawerValue.LeftOpen, DrawerValue.RightOpen) //ADD 右Drawerを開いた際の値を追加(SwipeableV2.kt:339でfirstOrNullが走るため、必ずClosedを最初)
                 ) { value, _ ->
                     when (value) {
-                        //FIX Closeの際にoffsetが0になるように修正
-                        DrawerValue.LeftOpen -> leftDrawerContent?.let{-minValue}?:0f   //FIX 左Drawerがnullなら、開かないようにする
-                        DrawerValue.Closed -> maxValue
-                        DrawerValue.RightOpen -> rightDrawerContent?.let{minValue}?:0f   //FIX 右Drawerがnullなら、開かないようにする
+                        //FIXED Closeの際にoffsetが0になるように修正
+                        DrawerValue.Closed -> startingValue
+                        DrawerValue.LeftOpen -> leftDrawerContent?.let{-maxValue}?:0f
+                        DrawerValue.RightOpen -> rightDrawerContent?.let{maxValue}?:0f
                     }
                 }
         ) {
@@ -288,12 +288,12 @@ fun DualDrawer(
                     }
                 },
                 fraction = {
-                    calculateFraction(minValue, maxValue, drawerState.requireOffset())
+                    calculateFraction(startingValue, maxValue, drawerState.requireOffset())
                 },
                 color = scrimColor
             )
             val navigationMenu = NavigationMenu
-            //FIX Left drawer (null as disabled)
+            //FIXED Left drawer (null as disabled)
             leftDrawerContent?.let{
                 Surface(
                     modifier = with(LocalDensity.current) {
@@ -310,7 +310,8 @@ fun DualDrawer(
                                 drawerState
                                     .requireOffset()
                                     .roundToInt()
-                                        + minValue.toInt(), 0   //FIX Close状態をoffset = 0に調整
+                                        + maxValue.toInt(), //FIXED Close状態をoffset = 0に調整
+                                0
                             )
                         }
                         .padding(end = EndDrawerPadding)
@@ -352,10 +353,11 @@ fun DualDrawer(
                                 drawerState
                                     .requireOffset()
                                     .roundToInt()
-                                        - minValue.toInt(), 0   //FIX Close状態をoffset = 0に調整
+                                        - maxValue.toInt(),
+                                0   //FIXED Close状態をoffset = 0に調整
                             )
                         }
-                        .padding(start = EndDrawerPadding)  //FIX 余白の左右変更
+                        .padding(start = EndDrawerPadding)  //FIXED 余白の左右変更
                         .semantics {
                             paneTitle = navigationMenu
                             if (drawerState.isOpen) {
@@ -402,7 +404,7 @@ object DrawerDefaults {
 }
 
 private fun calculateFraction(a: Float, b: Float, pos: Float) =
-    (abs(pos) / (b - a)).coerceIn(0f, 1f)   //FIX Close状態をoffset = 0に調整
+    abs(pos / (b - a)).coerceIn(0f, 1f)   //FIXED Close状態をoffset = 0に調整
 
 
 @Composable
