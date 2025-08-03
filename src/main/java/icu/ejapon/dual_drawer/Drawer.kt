@@ -60,7 +60,7 @@ enum class DrawerValue {
 }
 
 /**
- * State of the [DoubleModalDrawer] composable.
+ * State of the [DualDrawer] composable.
  *
  * @param initialValue The initial value of the state.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
@@ -228,7 +228,7 @@ fun rememberCustomDrawerState(
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
-fun DoubleModalDrawer(
+fun DualDrawer(
     leftDrawerContent: @Composable (ColumnScope.() -> Unit)? = null,
     rightDrawerContent: @Composable (ColumnScope.() -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -382,7 +382,7 @@ fun DoubleModalDrawer(
 }
 
 /**
- * Object to hold default values for [DoubleModalDrawer] and [BottomDrawer]
+ * Object to hold default values for [DualDrawer] and [BottomDrawer]
  */
 object DrawerDefaults {
 
