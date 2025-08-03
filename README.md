@@ -39,20 +39,24 @@ import icu.ejapon.dual_drawer.rememberCustomDrawerState
 
 @Composable
 fun MainScreen (modifier: Modifier = Modifier){
+    val drawerState = rememberCustomDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
     Surface(modifier = modifier){
         DualDrawer(
             drawerState = drawerState,
             rightDrawerContent = {
                 Text(
-                    text = "Hello World!"
+                    text = "Right Drawer Content!"
                 )
             },
             leftDrawerContent = null,   // nullで無効になる(default: null)。
             content = {
-                Text(
-                    text = "Hello World!"
-                )
-
+                Button(onClick = {
+                    scope.launch{ drawerState.openRight() }
+                }){
+                    Text(text = "Open")
+                }
             }
         )
     }
@@ -113,16 +117,25 @@ import icu.ejapon.dual_drawer.DrawerValue
 import icu.ejapon.dual_drawer.rememberCustomDrawerState
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    Surface(modifier = modifier) {
+fun MainScreen (modifier: Modifier = Modifier){
+    val drawerState = rememberCustomDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    Surface(modifier = modifier){
         DualDrawer(
             drawerState = drawerState,
             rightDrawerContent = {
-                Text(text = "Hello World!")
+                Text(
+                    text = "Right Drawer Content!"
+                )
             },
-            leftDrawerContent = null,  // Pass null to disable (default: null)
+            leftDrawerContent = null,   // Pass null to disable (default: null)。
             content = {
-                Text(text = "Hello World!")
+                Button(onClick = {
+                    scope.launch{ drawerState.openRight() }
+                }){
+                    Text(text = "Open")
+                }
             }
         )
     }
